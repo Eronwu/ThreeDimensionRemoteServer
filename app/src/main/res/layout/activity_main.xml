@@ -19,6 +19,12 @@
         android:layout_height="wrap_content"
         android:text="127.0.0.1"/>
 
+    <TextView
+        android:id="@+id/text_view_data"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="0 0"/>
+
     <!--show QR code-->
     <ImageView
         android:id="@+id/image_view_qr_code"

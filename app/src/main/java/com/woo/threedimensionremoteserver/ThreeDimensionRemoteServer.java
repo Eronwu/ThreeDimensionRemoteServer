@@ -24,26 +24,45 @@ public class ThreeDimensionRemoteServer extends Service {
 
         try {
             mServerSocket = new ServerSocket(PORT_NUM);
-            mSocket = mServerSocket.accept();
-            mInputStream = mSocket.getInputStream();
+            SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
+            socketAcceptThread.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        byte[] data = new byte[10];
-        try {
-            if (mInputStream != null) {
-                while (mInputStream.read(data) != -1) {
-                }
-                parseData(data);
+    class SocketAcceptThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                Log.d(TAG, "run: wait mServerSocket.accept");
+                mSocket = mServerSocket.accept();
+                Log.d(TAG, "run: mServerSocket.accept ok");
+                SocketDataReadThread socketDataReadThread = new SocketDataReadThread();
+                socketDataReadThread.start();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-        return super.onStartCommand(intent, flags, startId);
+    }
+
+    class SocketDataReadThread extends Thread {
+        @Override
+        public void run() {
+            try {
+                mInputStream = mSocket.getInputStream();
+                byte[] data = new byte[10];
+                while (true) {
+                    if (mInputStream != null) {
+                        while (mInputStream.read(data) != -1) {
+                        }
+                        parseData(data);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void parseData(byte[] data) {
@@ -53,7 +72,9 @@ public class ThreeDimensionRemoteServer extends Service {
             x = dataBytes2Int(data);
         else if (data[0] == 1)
             y = dataBytes2Int(data);
-        Log.d(TAG, "parseData: " + x + " " + y);
+        String s = x + " " + y;
+        Log.d(TAG, "parseData: " + s);
+        MainActivity.mData = s;
 
     }
 

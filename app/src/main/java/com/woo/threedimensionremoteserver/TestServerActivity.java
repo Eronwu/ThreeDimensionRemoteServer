@@ -18,6 +18,7 @@ public class TestServerActivity extends AppCompatActivity {
     private Socket mSocket;
     private TextView mTextViewData, mTextViewClient;
     private String mData;
+    private int x = 0, y = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +45,7 @@ public class TestServerActivity extends AppCompatActivity {
 //                Toast.makeText(TestServerActivity.this, "wait socket accept", Toast.LENGTH_SHORT).show();
                 mSocket = mServerSocket.accept();
                 if (mSocket != null) {
-                    Log.d(TAG, "run: mServerSocket.accept ok" + mSocket.getRemoteSocketAddress().toString());
+                    Log.d(TAG, "run: mServerSocket.accept ok :" + mSocket.getRemoteSocketAddress().toString());
 //                    TestServerActivity.this.runOnUiThread(new Runnable() {
 //                        @Override
 //                        public void run() {
@@ -68,24 +69,43 @@ public class TestServerActivity extends AppCompatActivity {
         public void run() {
             try {
                 mInputStream = mSocket.getInputStream();
-                while (true) {
+                while (mSocket.isConnected()) {
                     if (mInputStream != null) {
                         byte[] data = new byte[10];
-                        while (mInputStream.read(data) != -1) {
+                        int readSize = mInputStream.read(data);
+                        //If client is stopping
+                        if(readSize == -1)
+                        {
+                            Log.e(TAG, "run: read size == -1");
+                            break;
                         }
-                        if (data != null)
+                        if(readSize == 0) continue;
+//                        if (data != null){
                             parseData(data);
-                        else Log.e(TAG, "run: data null!");
+//                        }
+//                        else{ Log.e(TAG, "run: data null!");}
                     }
+                    sleep(100);
+//                    try{
+//                        socket.sendurgentdata(0xff);
+//                    }catch(exception ex){
+//                        reconnect();
+//                    }
                 }
+                mInputStream.close();
+                Log.d(TAG, "run: socket client exit! pls connect again!");
+                // TODO toast
+//                SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
+//                socketAcceptThread.start();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
     private void parseData(byte[] data) {
-        int x = 0, y = 0;
         // HEAD: 0:X 1:Y
         if (data[0] == 0)
             x = dataBytes2Int(data);
@@ -93,15 +113,6 @@ public class TestServerActivity extends AppCompatActivity {
             y = dataBytes2Int(data);
         mData = x + " " + y;
         Log.d(TAG, "parseData: " + mData);
-
-//        TestServerActivity.this.runOnUiThread(new Runnable() {
-//            @Override
-//            public void run() {
-//                if (mData != null)
-//                    mTextViewData.setText(mData);
-//                else Log.e(TAG, "run: mData == null!");
-//            }
-//        });
 
     }
 

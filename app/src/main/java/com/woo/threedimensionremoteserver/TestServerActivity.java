@@ -1,8 +1,10 @@
 package com.woo.threedimensionremoteserver;
 
+import android.app.Instrumentation;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.widget.TextView;
 
 import java.io.IOException;
@@ -114,6 +116,9 @@ public class TestServerActivity extends AppCompatActivity {
         mData = x + " " + y;
         Log.d(TAG, "parseData: " + mData);
 
+        // TODO send mouse event
+        Instrumentation instrumentation = new Instrumentation();
+//        instrumentation.sendPointerSync(MotionEvent);
     }
 
     public static int dataBytes2Int(byte[] bytes) {

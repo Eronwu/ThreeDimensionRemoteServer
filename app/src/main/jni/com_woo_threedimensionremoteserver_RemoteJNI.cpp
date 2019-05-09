@@ -11,9 +11,9 @@ extern "C" {
 #endif
 */
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_initVirtualMouse
-  (JNIEnv *, jobject){
+        (JNIEnv *, jobject) {
     return initUinput();
-    }
+}
 
 /*
  * Class:     com_woo_threedimensionremoteserver_RemoteJNI
@@ -21,19 +21,19 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_initVir
  * Signature: (II)I
  */
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setMoveRel
-  (JNIEnv *, jobject, jint x, jint y){
+        (JNIEnv *, jobject, jint x, jint y) {
     return setMoveRel(x, y);
-    }
+}
 /*
  * Class:     com_woo_threedimensionremoteserver_RemoteJNI
  * Method:    setLeftClick
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setLeftClick
-  (JNIEnv *, jobject){
+        (JNIEnv *, jobject) {
 
     return 0;
-    }
+}
 
 /*
  * Class:     com_woo_threedimensionremoteserver_RemoteJNI
@@ -41,10 +41,10 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setLeft
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setRightClick
-  (JNIEnv *, jobject){
+        (JNIEnv *, jobject) {
 
     return 0;
-    }
+}
 
 /*
  * Class:     com_woo_threedimensionremoteserver_RemoteJNI
@@ -52,11 +52,17 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setRigh
  * Signature: (I)I
  */
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setAcurracy
-  (JNIEnv *, jobject, jint){
+        (JNIEnv *, jobject, jint) {
 
     return 0;
-    }
-    /*
+}
+
+JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_closeVirtualMouse
+        (JNIEnv *, jobject) {
+
+    return closeUinput();
+}
+/*
 #ifdef __cplusplus
 }
 #endif

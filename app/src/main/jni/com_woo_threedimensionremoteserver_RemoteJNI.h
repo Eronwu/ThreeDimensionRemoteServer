@@ -47,6 +47,14 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setRigh
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setAcurracy
   (JNIEnv *, jobject, jint);
 
+/*
+ * Class:     com_woo_threedimensionremoteserver_RemoteJNI
+ * Method:    closeVirtualMouse
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_closeVirtualMouse
+  (JNIEnv *, jobject);
+
 #ifdef __cplusplus
 }
 #endif

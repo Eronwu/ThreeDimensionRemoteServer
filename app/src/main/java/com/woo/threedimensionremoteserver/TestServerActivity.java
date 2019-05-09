@@ -77,7 +77,7 @@ public class TestServerActivity extends AppCompatActivity {
                 mInputStream = mSocket.getInputStream();
                 while (mSocket.isConnected()) {
                     if (mInputStream != null) {
-                        byte[] data = new byte[10];
+                        byte[] data = new byte[8];
                         int readSize = mInputStream.read(data);
                         //If client is stopping
                         if(readSize == -1)
@@ -112,11 +112,14 @@ public class TestServerActivity extends AppCompatActivity {
     }
 
     private void parseData(byte[] data) {
-        // HEAD: 0:X 1:Y
-        if (data[0] == 0)
-            x = dataBytes2Int(data);
-        else if (data[0] == 1)
-            y = dataBytes2Int(data);
+        byte[] bx = new byte[4];
+        byte[] by = new byte[4];
+        for (int i = 0; i < 4; i++) {
+            bx[i] = data[i];
+            by[i] = data[i + 4];
+        }
+            x = dataBytes2Int(bx);
+            y = dataBytes2Int(by);
         mData = x + " " + y;
         Log.d(TAG, "parseData: " + mData);
 
@@ -129,10 +132,10 @@ public class TestServerActivity extends AppCompatActivity {
     }
 
     public static int dataBytes2Int(byte[] bytes) {
-        int num = bytes[4] & 0xFF;
-        num |= ((bytes[3] << 8) & 0xFF00);
-        num |= ((bytes[2] << 16) & 0xFF0000);
-        num |= ((bytes[1] << 24) & 0xFF000000);
+        int num = bytes[3] & 0xFF;
+        num |= ((bytes[2] << 8) & 0xFF00);
+        num |= ((bytes[1] << 16) & 0xFF0000);
+        num |= ((bytes[0] << 24) & 0xFF000000);
 
         return num;
     }
@@ -149,6 +152,7 @@ public class TestServerActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        remoteJNI.closeVirtualMouse();
         super.onDestroy();
     }
 }

@@ -15,4 +15,6 @@ public class RemoteJNI {
     public native int setRightClick();
 
     public native int setAcurracy(int n);
+
+    public native int closeVirtualMouse();
 }

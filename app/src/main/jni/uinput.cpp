@@ -93,5 +93,15 @@ int setMoveRel(int dx, int dy) {
             die("error: write");
     }
 
+
     return 0;
 }
+
+int closeUinput(){
+    if(ioctl(fd, UI_DEV_DESTROY) < 0)
+        die("error: ioctl");
+    close(fd);
+
+    return 0;
+}
+

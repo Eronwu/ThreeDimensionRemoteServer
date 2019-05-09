@@ -9,4 +9,5 @@ int initUinput();
 
 int setMoveRel(int dx, int dy);
 
+int closeUinput();
 #endif //THREEDIMENSIONREMOTESERVER_UINPUT_H

@@ -21,6 +21,7 @@ public class TestServerActivity extends AppCompatActivity {
     private TextView mTextViewData, mTextViewClient;
     private String mData;
     private int x = 0, y = 0;
+    private RemoteJNI remoteJNI;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +31,9 @@ public class TestServerActivity extends AppCompatActivity {
         mTextViewData = findViewById(R.id.text_view_data);
         mTextViewClient = findViewById(R.id.text_view_client);
 
+        remoteJNI = new RemoteJNI();
+        int ret = remoteJNI.initVirtualMouse();
+        Log.d(TAG, "onCreate: init virtual mouse:" + ret);
         try {
             mServerSocket = new ServerSocket(PORT_NUM);
             SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
@@ -119,13 +123,17 @@ public class TestServerActivity extends AppCompatActivity {
         // TODO send mouse event
         Instrumentation instrumentation = new Instrumentation();
 //        instrumentation.sendPointerSync(MotionEvent);
+
+        int ret = remoteJNI.setMoveRel(x, y);
+        Log.d(TAG, "onCreate: set virtual mouse:" + ret);
     }
 
     public static int dataBytes2Int(byte[] bytes) {
         int num = bytes[4] & 0xFF;
         num |= ((bytes[3] << 8) & 0xFF00);
         num |= ((bytes[2] << 16) & 0xFF0000);
-        num |= ((bytes[1] << 24) & 0xFF0000);
+        num |= ((bytes[1] << 24) & 0xFF000000);
+
         return num;
     }
 

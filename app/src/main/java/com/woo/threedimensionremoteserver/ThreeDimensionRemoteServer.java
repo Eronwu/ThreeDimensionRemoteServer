@@ -17,6 +17,7 @@ public class ThreeDimensionRemoteServer extends Service {
     private ServerSocket mServerSocket;
     private InputStream mInputStream;
     private Socket mSocket;
+    private RemoteJNI remoteJNI;
 
     @Override
     public void onCreate() {
@@ -29,6 +30,10 @@ public class ThreeDimensionRemoteServer extends Service {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        remoteJNI = new RemoteJNI();
+        int ret = remoteJNI.initVirtualMouse();
+        Log.d(TAG, "onCreate: init virtual mouse:" + ret);
     }
 
     class SocketAcceptThread extends Thread {

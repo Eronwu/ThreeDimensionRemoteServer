@@ -39,7 +39,16 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
 //                startService(new Intent(MainActivity.this, ThreeDimensionRemoteServer.class));
                 startActivity(new Intent(MainActivity.this, TestServerActivity.class));
-                Toast.makeText(MainActivity.this, "Start Server", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Start TCP Server", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        Button udpButton = findViewById(R.id.button_enter_udp);
+        udpButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this, TestServerUdpActivity.class));
+                Toast.makeText(MainActivity.this, "Start UDP Server", Toast.LENGTH_SHORT).show();
             }
         });
 

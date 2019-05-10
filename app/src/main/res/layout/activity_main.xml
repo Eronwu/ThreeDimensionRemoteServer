@@ -36,5 +36,11 @@
         android:id="@+id/button_enter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="enter service"/>
+        android:text="enter tcp service"/>
+
+    <Button
+        android:id="@+id/button_enter_udp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="enter udp service"/>
 </LinearLayout>

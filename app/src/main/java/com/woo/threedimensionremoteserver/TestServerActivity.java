@@ -124,7 +124,7 @@ public class TestServerActivity extends AppCompatActivity {
         Log.d(TAG, "parseData: " + mData);
 
         int ret = remoteJNI.setMoveRel(x, y);
-        Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+//        Log.d(TAG, "onCreate: set virtual mouse:" + ret);
     }
 
     public static int dataBytes2Int(byte[] bytes) {

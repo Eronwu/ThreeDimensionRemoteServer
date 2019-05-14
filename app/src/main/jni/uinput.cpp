@@ -68,11 +68,18 @@ int initUinput() {
     return 0;
 }
 
-int sendRel(int val, __u16 type) {
+int sendRel(int dx, int dy) {
     memset(&ev, 0, sizeof(struct input_event));
     ev.type = EV_REL;         //send x coordinates
-    ev.code = type;
-    ev.value = val;
+    ev.code = REL_X;
+    ev.value = dx;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_REL;         //send x coordinates
+    ev.code = REL_Y;
+    ev.value = dy;
     if (write(fd, &ev, sizeof(struct input_event)) < 0)
         die("error: write");
 
@@ -90,7 +97,7 @@ int setMoveRel(int dx, int dy) {
 //TODO  use time () to calculate the gap time
     int i, gap;
     useconds_t sleep_time;
-    if (dx != 0) {
+    if (dx != 0 || dy != 0) {
         if (0){//(ABS(dx) > MIN_INPUT_GAP) {
             sleep_time = (useconds_t) MIN_TIME_DELAY / (ABS(dx) / MIN_INPUT_GAP);
             LOGD("sleep time :%d\n", sleep_time);
@@ -103,27 +110,9 @@ int setMoveRel(int dx, int dy) {
 //                sendRel(dx>lastX?(dx-i):-(dx-i), REL_X);
 //            }
         } else
-            sendRel(dx, REL_X);
+            sendRel(dx, dy);
 
 //        lastX = dx;
-    }
-
-    if (dy != 0) {
-        if (0){//(ABS(dy - 0) > MIN_INPUT_GAP) {
-            sleep_time = (useconds_t) MIN_TIME_DELAY / (ABS(dy - 0) / MIN_INPUT_GAP);
-            LOGD("sleep time :%d\n", sleep_time);
-            gap = dy>0?MIN_INPUT_GAP:-MIN_INPUT_GAP;
-            for (i = 0; ABS(dy - i) > MIN_INPUT_GAP; i += gap) {
-                sendRel(gap, REL_Y);
-//                LOGD("adfaasdfasdfasdf\n");
-                usleep(sleep_time);
-            }
-//            if (i != dy) {
-//                sendRel(dy, REL_Y);
-//            }
-        } else
-            sendRel(dy, REL_Y);
-
 //        lastY = dy;
     }
 

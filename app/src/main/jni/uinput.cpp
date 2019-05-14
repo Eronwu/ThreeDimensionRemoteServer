@@ -98,10 +98,10 @@ int setMoveRel(int dx, int dy) {
     int i, gap;
     useconds_t sleep_time;
     if (dx != 0 || dy != 0) {
-        if (0){//(ABS(dx) > MIN_INPUT_GAP) {
+        if (0) {//(ABS(dx) > MIN_INPUT_GAP) {
             sleep_time = (useconds_t) MIN_TIME_DELAY / (ABS(dx) / MIN_INPUT_GAP);
             LOGD("sleep time :%d\n", sleep_time);
-            gap = dx>0?MIN_INPUT_GAP:-MIN_INPUT_GAP;
+            gap = dx > 0 ? MIN_INPUT_GAP : -MIN_INPUT_GAP;
             for (i = 0; ABS(dx - i) > MIN_INPUT_GAP; i += gap) {
                 sendRel(gap, REL_X);
                 usleep(sleep_time);
@@ -117,6 +117,73 @@ int setMoveRel(int dx, int dy) {
     }
 
 
+    return 0;
+}
+
+int setLeftClick() {
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_KEY;  //mouse left key
+    ev.code = BTN_LEFT;
+    ev.value = 1;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_SYN; // inform input system to process this input event
+    ev.code = 0;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_KEY;  //mouse left key
+    ev.code = BTN_LEFT;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_SYN; // inform input system to process this input event
+    ev.code = 0;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    LOGD("setLeftClick ok \n");
+
+    return 0;
+}
+
+int setRightClick() {
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_KEY;  //mouse right key
+    ev.code = BTN_RIGHT;
+    ev.value = 1;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_SYN; // inform input system to process this input event
+    ev.code = 0;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_KEY;  //mouse right key
+    ev.code = BTN_RIGHT;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    memset(&ev, 0, sizeof(struct input_event));
+    ev.type = EV_SYN; // inform input system to process this input event
+    ev.code = 0;
+    ev.value = 0;
+    if (write(fd, &ev, sizeof(struct input_event)) < 0)
+        die("error: write");
+
+    LOGD("setRightClick ok \n");
     return 0;
 }
 

@@ -10,4 +10,8 @@ int initUinput();
 int setMoveRel(int dx, int dy);
 
 int closeUinput();
+
+int setLeftClick();
+
+int setRightClick();
 #endif //THREEDIMENSIONREMOTESERVER_UINPUT_H

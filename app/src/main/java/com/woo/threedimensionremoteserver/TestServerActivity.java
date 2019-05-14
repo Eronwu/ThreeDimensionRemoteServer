@@ -112,19 +112,31 @@ public class TestServerActivity extends AppCompatActivity {
     }
 
     private void parseData(byte[] data) {
-        byte[] bx = new byte[4];
-        byte[] by = new byte[4];
-        for (int i = 0; i < 4; i++) {
-            bx[i] = data[i];
-            by[i] = data[i + 4];
-        }
-            x = dataBytes2Int(bx);
-            y = dataBytes2Int(by);
-        mData = x + " " + y;
-        Log.d(TAG, "parseData: " + mData);
+        switch (data[0]) {
+            case 0:
+                byte[] bx = new byte[4];
+                byte[] by = new byte[4];
+                for (int i = 0; i < 4; i++) {
+                    bx[i] = data[i + 1];
+                    by[i] = data[i + 5];
+                }
+                x = dataBytes2Int(bx);
+                y = dataBytes2Int(by);
+                mData = x + " " + y;
+                Log.d(TAG, "parseData: " + mData);
 
-        int ret = remoteJNI.setMoveRel(x, y);
-//        Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                int ret = remoteJNI.setMoveRel(x, y);
+                Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                break;
+            case 1:
+                remoteJNI.setLeftClick();
+                break;
+            case 2:
+                remoteJNI.setRightClick();
+                break;
+            default:
+                return;
+        }
     }
 
     public static int dataBytes2Int(byte[] bytes) {

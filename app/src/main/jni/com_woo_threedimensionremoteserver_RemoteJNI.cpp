@@ -32,7 +32,7 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setMove
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setLeftClick
         (JNIEnv *, jobject) {
 
-    return 0;
+    return setLeftClick();
 }
 
 /*
@@ -43,7 +43,7 @@ JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setLeft
 JNIEXPORT jint JNICALL Java_com_woo_threedimensionremoteserver_RemoteJNI_setRightClick
         (JNIEnv *, jobject) {
 
-    return 0;
+    return setRightClick();
 }
 
 /*

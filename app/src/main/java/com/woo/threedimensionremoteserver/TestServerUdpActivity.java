@@ -1,17 +1,15 @@
 package com.woo.threedimensionremoteserver;
 
-import android.app.Instrumentation;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class TestServerUdpActivity extends AppCompatActivity {
     private final String TAG = "TestServerActivity";
@@ -33,6 +31,13 @@ public class TestServerUdpActivity extends AppCompatActivity {
         SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
         socketAcceptThread.start();
 
+        Button buttonTest = findViewById(R.id.button_test);
+        buttonTest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(TestServerUdpActivity.this, "click right!but is left", Toast.LENGTH_SHORT).show();
+            }
+        });
         // TODO Heart beat log
     }
 
@@ -42,7 +47,7 @@ public class TestServerUdpActivity extends AppCompatActivity {
             try {
                 Log.d(TAG, "run: wait mServerSocket.accept");
 
-                mDatagramSocket = new  DatagramSocket (PORT_NUM);
+                mDatagramSocket = new DatagramSocket(PORT_NUM);
                 if (mDatagramSocket != null) {
                     mDatagramSocket.setBroadcast(true);
                     SocketDataReadThread socketDataReadThread = new SocketDataReadThread();
@@ -60,15 +65,15 @@ public class TestServerUdpActivity extends AppCompatActivity {
             try {
                 isThreadRun = true;
                 byte buffer[] = new byte[108];
-                DatagramPacket datagramPacket = new DatagramPacket(buffer , buffer.length);
+                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 while (isThreadRun) {
                     if (mDatagramSocket != null) {
                         mDatagramSocket.receive(datagramPacket);
                         byte[] data;
                         data = datagramPacket.getData();
                         int readSize = data.length;
-                        if(readSize == 0) continue;
-                            parseData(data);
+                        if (readSize == 0) continue;
+                        parseData(data);
                     }
                     sleep(100);
                 }
@@ -85,19 +90,34 @@ public class TestServerUdpActivity extends AppCompatActivity {
     }
 
     private void parseData(byte[] data) {
-        byte[] bx = new byte[4];
-        byte[] by = new byte[4];
-        for (int i = 0; i < 4; i++) {
-            bx[i] = data[i];
-            by[i] = data[i + 4];
-        }
-            x = dataBytes2Int(bx);
-            y = dataBytes2Int(by);
-        mData = x + " " + y;
-        Log.d(TAG, "parseData: " + mData);
+        switch (data[0]) {
+            case 0:
+                byte[] bx = new byte[4];
+                byte[] by = new byte[4];
+                for (int i = 0; i < 4; i++) {
+                    bx[i] = data[i + 1];
+                    by[i] = data[i + 5];
+                }
+                x = dataBytes2Int(bx);
+                y = dataBytes2Int(by);
+                mData = x + " " + y;
+                Log.d(TAG, "parseData: " + mData);
 
-        int ret = remoteJNI.setMoveRel(x, y);
-        Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                int ret = remoteJNI.setMoveRel(x, y);
+                Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                break;
+            case 1:
+                if (data[1] == 0) {
+                    ret = remoteJNI.setLeftClick();
+                    Log.d(TAG, "parseData: set left click" + ret);
+                } else if (data[1] == 1) {
+                    ret = remoteJNI.setRightClick();
+                    Log.d(TAG, "parseData: set right click" + ret);
+                }
+                break;
+            default:
+                return;
+        }
     }
 
     public static int dataBytes2Int(byte[] bytes) {

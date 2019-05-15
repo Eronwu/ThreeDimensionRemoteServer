@@ -2,9 +2,6 @@ package com.woo.threedimensionremoteserver;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.annotation.UiThread;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -47,7 +44,8 @@ public class MainActivity extends AppCompatActivity {
         udpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, TestServerUdpActivity.class));
+//                startActivity(new Intent(MainActivity.this, TestServerUdpActivity.class));
+                startService(new Intent(MainActivity.this, ThreeDimensionRemoteServer.class));
                 Toast.makeText(MainActivity.this, "Start UDP Server", Toast.LENGTH_SHORT).show();
             }
         });
@@ -96,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * 获取ip地址
+     *
      * @return
      */
     public static String getHostIP() {

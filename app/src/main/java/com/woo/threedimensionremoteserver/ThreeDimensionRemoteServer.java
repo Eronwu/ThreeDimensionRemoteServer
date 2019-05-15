@@ -5,35 +5,37 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ThreeDimensionRemoteServer extends Service {
     private final String TAG = "RemoteServer";
     private final int PORT_NUM = 6666;
-    private ServerSocket mServerSocket;
-    private InputStream mInputStream;
-    private Socket mSocket;
     private RemoteJNI remoteJNI;
+    private DatagramSocket mDatagramSocket;
+    private String mData;
+    private int x = 0, y = 0;
+    private boolean isThreadRun = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        try {
-            mServerSocket = new ServerSocket(PORT_NUM);
-            SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
-            socketAcceptThread.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         remoteJNI = new RemoteJNI();
         int ret = remoteJNI.initVirtualMouse();
         Log.d(TAG, "onCreate: init virtual mouse:" + ret);
+        ThreeDimensionRemoteServer.SocketAcceptThread socketAcceptThread = new ThreeDimensionRemoteServer.SocketAcceptThread();
+        socketAcceptThread.start();
+
+        // TODO Heart beat log
     }
 
     class SocketAcceptThread extends Thread {
@@ -41,10 +43,13 @@ public class ThreeDimensionRemoteServer extends Service {
         public void run() {
             try {
                 Log.d(TAG, "run: wait mServerSocket.accept");
-                mSocket = mServerSocket.accept();
-                Log.d(TAG, "run: mServerSocket.accept ok");
-                SocketDataReadThread socketDataReadThread = new SocketDataReadThread();
-                socketDataReadThread.start();
+
+                mDatagramSocket = new DatagramSocket(PORT_NUM);
+                if (mDatagramSocket != null) {
+                    mDatagramSocket.setBroadcast(true);
+                    ThreeDimensionRemoteServer.SocketDataReadThread socketDataReadThread = new ThreeDimensionRemoteServer.SocketDataReadThread();
+                    socketDataReadThread.start();
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -55,53 +60,78 @@ public class ThreeDimensionRemoteServer extends Service {
         @Override
         public void run() {
             try {
-                mInputStream = mSocket.getInputStream();
-                byte[] data = new byte[10];
-                while (true) {
-                    if (mInputStream != null) {
-                        while (mInputStream.read(data) != -1) {
-                        }
+                isThreadRun = true;
+                byte buffer[] = new byte[108];
+                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+                while (isThreadRun) {
+                    if (mDatagramSocket != null) {
+                        mDatagramSocket.receive(datagramPacket);
+                        byte[] data;
+                        data = datagramPacket.getData();
+                        int readSize = data.length;
+                        if (readSize == 0) continue;
                         parseData(data);
                     }
+                    sleep(100);
                 }
+                Log.d(TAG, "run: socket client exit! pls connect again!");
+                // TODO toast
+//                SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
+//                socketAcceptThread.start();
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     }
 
     private void parseData(byte[] data) {
-        int x = 0, y = 0;
-        // HEAD: 0:X 1:Y
-        if (data[0] == 0)
-            x = dataBytes2Int(data);
-        else if (data[0] == 1)
-            y = dataBytes2Int(data);
-        String s = x + " " + y;
-        Log.d(TAG, "parseData: " + s);
-        MainActivity.mData = s;
+        switch (data[0]) {
+            case 0:
+                byte[] bx = new byte[4];
+                byte[] by = new byte[4];
+                for (int i = 0; i < 4; i++) {
+                    bx[i] = data[i + 1];
+                    by[i] = data[i + 5];
+                }
+                x = dataBytes2Int(bx);
+                y = dataBytes2Int(by);
+                mData = x + " " + y;
+                Log.d(TAG, "parseData: " + mData);
 
+                int ret = remoteJNI.setMoveRel(x, y);
+                Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                break;
+            case 1:
+                if (data[1] == 0) {
+                    ret = remoteJNI.setLeftClick();
+                    Log.d(TAG, "parseData: set left click" + ret);
+                } else if (data[1] == 1) {
+                    ret = remoteJNI.setRightClick();
+                    Log.d(TAG, "parseData: set right click" + ret);
+                }
+                break;
+            default:
+                return;
+        }
     }
 
     public static int dataBytes2Int(byte[] bytes) {
-        int num = bytes[4] & 0xFF;
-        num |= ((bytes[3] << 8) & 0xFF00);
-        num |= ((bytes[2] << 16) & 0xFF0000);
-        num |= ((bytes[1] << 24) & 0xFF0000);
+        int num = bytes[3] & 0xFF;
+        num |= ((bytes[2] << 8) & 0xFF00);
+        num |= ((bytes[1] << 16) & 0xFF0000);
+        num |= ((bytes[0] << 24) & 0xFF000000);
+
         return num;
     }
+
     @Override
     public void onDestroy() {
-        try {
-            if (mServerSocket != null)
-                mServerSocket.close();
-            if (mSocket != null)
-                mSocket.close();
-            if (mInputStream != null)
-                mInputStream.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        isThreadRun = false;
+        if (mDatagramSocket != null)
+            mDatagramSocket.close();
+        remoteJNI.closeVirtualMouse();
         super.onDestroy();
     }
 

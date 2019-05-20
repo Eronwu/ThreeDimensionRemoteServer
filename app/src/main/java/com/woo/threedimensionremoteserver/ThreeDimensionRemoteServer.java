@@ -21,7 +21,6 @@ public class ThreeDimensionRemoteServer extends Service {
     private final int PORT_NUM = 6666;
     private RemoteJNI remoteJNI;
     private DatagramSocket mDatagramSocket;
-    private String mData;
     private int x = 0, y = 0;
     private boolean isThreadRun = false;
 
@@ -62,22 +61,20 @@ public class ThreeDimensionRemoteServer extends Service {
             try {
                 isThreadRun = true;
                 byte buffer[] = new byte[108];
+                byte[] data;
+                int readSize;
                 DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 while (isThreadRun) {
                     if (mDatagramSocket != null) {
                         mDatagramSocket.receive(datagramPacket);
-                        byte[] data;
                         data = datagramPacket.getData();
-                        int readSize = data.length;
+                        readSize = data.length;
                         if (readSize == 0) continue;
                         parseData(data);
                     }
-                    sleep(100);
+                    sleep(1);
                 }
-                Log.d(TAG, "run: socket client exit! pls connect again!");
-                // TODO toast
-//                SocketAcceptThread socketAcceptThread = new SocketAcceptThread();
-//                socketAcceptThread.start();
+                Log.d(TAG, "run: socket client exit!");
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
@@ -85,23 +82,23 @@ public class ThreeDimensionRemoteServer extends Service {
             }
         }
     }
+    int ret;
+    byte[] bx = new byte[4];
+    byte[] by = new byte[4];
 
     private void parseData(byte[] data) {
         switch (data[0]) {
             case 0:
-                byte[] bx = new byte[4];
-                byte[] by = new byte[4];
                 for (int i = 0; i < 4; i++) {
                     bx[i] = data[i + 1];
                     by[i] = data[i + 5];
                 }
                 x = dataBytes2Int(bx);
                 y = dataBytes2Int(by);
-                mData = x + " " + y;
-                Log.d(TAG, "parseData: " + mData);
+                Log.d(TAG, "parseData: " + x + " " + y);
 
-                int ret = remoteJNI.setMoveRel(x, y);
-                Log.d(TAG, "onCreate: set virtual mouse:" + ret);
+                ret = remoteJNI.setMoveRel(x, y);
+//                Log.d(TAG, "onCreate: set virtual mouse:" + ret);
                 break;
             case 1:
                 if (data[1] == 0) {

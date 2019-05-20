@@ -19,11 +19,13 @@ public class TestServerUdpActivity extends AppCompatActivity {
     private int x = 0, y = 0;
     private RemoteJNI remoteJNI;
     private boolean isThreadRun = false;
+    private long lastTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test_server);
+        lastTime = System.currentTimeMillis();
 
         remoteJNI = new RemoteJNI();
         int ret = remoteJNI.initVirtualMouse();
@@ -60,22 +62,27 @@ public class TestServerUdpActivity extends AppCompatActivity {
     }
 
     class SocketDataReadThread extends Thread {
+
         @Override
         public void run() {
             try {
                 isThreadRun = true;
                 byte buffer[] = new byte[108];
+                byte[] data;
+                int readSize;
                 DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 while (isThreadRun) {
                     if (mDatagramSocket != null) {
                         mDatagramSocket.receive(datagramPacket);
-                        byte[] data;
                         data = datagramPacket.getData();
-                        int readSize = data.length;
+                        readSize = data.length;
                         if (readSize == 0) continue;
+//                        Log.d(TAG, "run: parse data time:"  + (System.currentTimeMillis() - lastTime));
+//                        lastTime = System.currentTimeMillis();
+
                         parseData(data);
                     }
-                    sleep(100);
+//                    sleep(1);
                 }
                 Log.d(TAG, "run: socket client exit! pls connect again!");
                 // TODO toast
@@ -83,8 +90,8 @@ public class TestServerUdpActivity extends AppCompatActivity {
 //                socketAcceptThread.start();
             } catch (IOException e) {
                 e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
             }
         }
     }
